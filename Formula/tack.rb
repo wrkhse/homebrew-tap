@@ -2,7 +2,6 @@
 class Tack < Formula
   desc "Rust CLI and daemon for running one Luau plugin in every agent"
   homepage "https://github.com/wrkhse/tack"
-  version "0.1.0-rc.6"
   license "MIT"
 
   on_macos do

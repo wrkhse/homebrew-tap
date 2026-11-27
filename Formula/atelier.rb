@@ -3,7 +3,6 @@
 class Atelier < Formula
   desc "CI engine for monorepos: gate presets on moon, one check per gate"
   homepage "https://github.com/wrkhse/atelier"
-  version "0.2.0-rc.2"
   license "MIT"
 
   on_macos do
