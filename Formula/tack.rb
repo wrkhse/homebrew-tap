@@ -22,10 +22,11 @@ class Tack < Formula
   end
 
   def install
-    bin.install "tack", "tack-daemon"
+    bin.install "tack", "tack-daemon", "tack-hook"
   end
 
   test do
-    assert_equal "tack 0.1.0-rc.6", shell_output("#{bin}/tack --version").strip
+    assert_equal "tack #{version}", shell_output("#{bin}/tack --version").strip
+    assert_predicate bin/"tack-hook", :exist?
   end
 end
