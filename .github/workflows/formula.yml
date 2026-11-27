@@ -31,7 +31,7 @@ jobs:
         run: |
           taps="$(brew --repository)/Library/Taps/wrkhse"
           mkdir -p "$taps"
-          ln -s "$PWD" "$taps/tap"
+          ln -s "$PWD" "$taps/homebrew-tap"
 
       - name: Check every changed formula
         shell: bash
