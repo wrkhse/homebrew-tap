@@ -16,8 +16,10 @@ class Tack < Formula
   end
 
   on_linux do
-    url "https://github.com/wrkhse/tack/releases/download/v0.1.0-rc.6/tack-v0.1.0-rc.6-x86_64-unknown-linux-gnu.tar.gz"
-    sha256 "082de8429bedd3bf94f7f4f182110aa4814dcdfbea82b03909e835e7370c062f"
+    on_intel do
+      url "https://github.com/wrkhse/tack/releases/download/v0.1.0-rc.6/tack-v0.1.0-rc.6-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "082de8429bedd3bf94f7f4f182110aa4814dcdfbea82b03909e835e7370c062f"
+    end
   end
 
   def install
@@ -26,6 +28,6 @@ class Tack < Formula
 
   test do
     assert_equal "tack #{version}", shell_output("#{bin}/tack --version").strip
-    assert_predicate bin/"tack-hook", :exist?
+    assert_path_exists bin/"tack-hook"
   end
 end
