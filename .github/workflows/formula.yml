@@ -2,7 +2,6 @@ name: Formula
 
 on:
   pull_request:
-    paths: ['Formula/*.rb']
   push:
     branches:
       - main
@@ -18,6 +17,7 @@ concurrency:
 
 jobs:
   check:
+    name: Formula check
     runs-on: macos-15
     timeout-minutes: 30
     steps:
@@ -46,8 +46,8 @@ jobs:
             mapfile -t formulas < <(git diff --name-only --diff-filter=ACM "origin/$BASE_REF...HEAD" -- 'Formula/*.rb')
           fi
           if [[ "${#formulas[@]}" -eq 0 ]]; then
-            echo "No changed formulas." >&2
-            exit 1
+            echo "::notice::No changed formulas; skipping."
+            exit 0
           fi
           for file in "${formulas[@]}"; do
             name="$(basename "$file" .rb)"
