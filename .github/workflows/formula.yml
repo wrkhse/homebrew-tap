@@ -40,10 +40,15 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
+          formulas=()
           if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
-            mapfile -t formulas < <(find Formula -type f -name '*.rb' | sort)
+            while IFS= read -r file; do
+              formulas+=("$file")
+            done < <(find Formula -type f -name '*.rb' | sort)
           else
-            mapfile -t formulas < <(git diff --name-only --diff-filter=ACM "origin/$BASE_REF...HEAD" -- 'Formula/*.rb')
+            while IFS= read -r file; do
+              formulas+=("$file")
+            done < <(git diff --name-only --diff-filter=ACM "origin/$BASE_REF...HEAD" -- 'Formula/*.rb')
           fi
           if [[ "${#formulas[@]}" -eq 0 ]]; then
             echo "::notice::No changed formulas; skipping."
