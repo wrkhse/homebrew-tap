@@ -1,0 +1,59 @@
+name: Formula
+
+on:
+  pull_request:
+    paths: ['Formula/*.rb']
+  push:
+    branches:
+      - main
+    paths: ['Formula/*.rb']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formula-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Link the tap into Homebrew
+        run: |
+          taps="$(brew --repository)/Library/Taps/wrkhse"
+          mkdir -p "$taps"
+          ln -s "$PWD" "$taps/tap"
+
+      - name: Check every changed formula
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            mapfile -t formulas < <(find Formula -type f -name '*.rb' | sort)
+          else
+            mapfile -t formulas < <(git diff --name-only --diff-filter=ACM "origin/$BASE_REF...HEAD" -- 'Formula/*.rb')
+          fi
+          if [[ "${#formulas[@]}" -eq 0 ]]; then
+            echo "No changed formulas." >&2
+            exit 1
+          fi
+          for file in "${formulas[@]}"; do
+            name="$(basename "$file" .rb)"
+            brew trust --formula "wrkhse/tap/$name"
+            brew style "wrkhse/tap/$name"
+            brew audit --strict --online --formula "wrkhse/tap/$name"
+            brew install --formula "wrkhse/tap/$name"
+            brew test "wrkhse/tap/$name"
+          done
